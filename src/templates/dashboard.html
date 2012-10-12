@@ -41,6 +41,7 @@
             <textarea name="source"><%= source %></textarea>
           </label>
           <input type="button" value="save">
+          <input type="button" value="delete">
         </form>
       </fieldset>
     </script>
@@ -67,7 +68,36 @@
       </div>
     </div>
 
-    <div id="main" class="container"></div>
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="well sidebar-nav">
+            <ul class="nav nav-list">
+              <li class="nav-header">Sidebar</li>
+              <li class="active"><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li class="nav-header">Sidebar</li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li class="nav-header">Sidebar</li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+              <li><a href="#">Link</a></li>
+            </ul>
+          </div><!--/.well -->
+        </div><!--/span-->
+
+        <div id="main" class="span9">
+          <!-- main-content -->
+        </div><!--/span-->
+      </div><!--/row-->
+    </div><!--/.fluid-container-->
 
     <script src="static/js/libs/jquery-1.8.2.min.js"></script>
     <script src="static/js/libs/underscore-min.js"></script>

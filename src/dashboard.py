@@ -18,15 +18,12 @@ def connect_db():
     return sqlite3.connect(DATABASE)
 
 def query_db(query, args=(), one=False):
-    c = g.db.cursor()
-    q = c.execute(query, args)
+    cur = g.db.execute(query, args)
     g.db.commit()
-
-    rv = [dict((q.description[idx][0], value) for idx, value in enumerate(row)) for row in q.fetchall()]
+    rv = [dict((cur.description[idx][0], value) for idx, value in enumerate(row)) for row in cur.fetchall()]
     return (rv[0] if rv else None) if one else rv
 
 
-'''
 @app.before_request
 def before_request():
     g.db = connect_db()
@@ -35,19 +32,21 @@ def before_request():
 def teardown_request(exception):
     if hasattr(g, 'db'):
         g.db.close()
-'''
 
 
-@app.route('/ws/widget-definition/', methods=['POST'])
+@app.route('/ws/widget-definition/', methods=['GET', 'POST'])
 def widget_definition():
-    #TODO validation
-    request_payload = json.loads(request.data)
-    with closing(connect_db()) as db:
-        db.cursor().execute('insert into widget_definition(name, description, dimensions, source) values(?, ?, ?, ?)',
-                            [request_payload[key] for key in ('name', 'description', 'dimensions', 'source')])
-        db.commit()
+    if request.method == 'POST':
+        #TODO validation
+        request_payload = json.loads(request.data)
+        query_db('insert into widget_definition(name, description, dimensions, source) values(?, ?, ?, ?)',
+                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'source')])
 
-    return '', 200, {'content-type': 'application/json'}
+        result = ''
+    else:
+        result = json.dumps(query_db('select * from widget_definition'))
+
+    return result, 200, {'content-type': 'application/json'}
 
 @app.route('/')
 def dashboard():
@@ -58,3 +57,4 @@ if __name__ == '__main__':
     if not os.path.exists(DATABASE):
         init_db()
     app.run(debug=True)
+

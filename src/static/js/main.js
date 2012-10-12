@@ -10,6 +10,13 @@ $(function() {
         url: 'ws/widget-definition/'
     });
 
+    var WidgetDefinitionList = Backbone.Collection.extend({
+        model: WidgetDefinition,
+        url: 'ws/widget-definition/'
+    });
+    var WidgetDefinitions = new WidgetDefinitionList();
+    WidgetDefinitions.fetch();
+
     var WidgetDefinitionView = Backbone.View.extend({
         template: _.template($('#widget-definition-tpl').html()),
 
