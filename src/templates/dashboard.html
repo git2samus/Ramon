@@ -26,20 +26,21 @@
         <form>
           <label>
             Name:<br>
-            <input type="text" name="widget-name" value="<%= name %>">
+            <input type="text" name="name" value="<%= name %>">
           </label>
           <label>
             Description:<br>
-            <textarea description="widget-description"><%= description %></textarea>
+            <textarea name="description"><%= description %></textarea>
           </label>
           <label>
             Dimensions:<br>
-            <input type="number" name="widget-dimensions" value="<%= dimensions %>">
+            <input type="number" name="dimensions" value="<%= dimensions %>">
           </label>
           <label>
             Source:<br>
-            <textarea name="widget-source"><%= source %></textarea>
+            <textarea name="source"><%= source %></textarea>
           </label>
+          <input type="button" value="save">
         </form>
       </fieldset>
     </script>
