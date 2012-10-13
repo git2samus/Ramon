@@ -20,31 +20,6 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script id="widget-editor-tpl" type="text/template">
-      <fieldset>
-        <legend>New Widget</legend>
-        <form>
-          <label>
-            Name:<br>
-            <input type="text" name="name" value="<%- model.get('name') %>">
-          </label>
-          <label>
-            Description:<br>
-            <textarea name="description"><%- model.get('description') %></textarea>
-          </label>
-          <label>
-            Dimensions:<br>
-            <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
-          </label>
-          <label>
-            Source:<br>
-            <textarea name="source"><%- model.get('source') %></textarea>
-          </label>
-          <input type="button" value="save">
-          <input type="button" value="delete">
-        </form>
-      </fieldset>
-    </script>
     <script id="widget-library-tpl" type="text/template">
       <div class="well sidebar-nav">
         <ul class="nav nav-list">
@@ -53,7 +28,50 @@
             <li><a href="#<%- model.id %>"><%- model.name %></a></li>
           <% }); %>
         </ul>
-      </div><!--/.well -->
+      </div>
+    </script>
+
+    <script id="widget-editor-tpl" type="text/template">
+      <div class="row-fluid">
+        <div class="span4">
+          <fieldset>
+            <% if (model.isNew()) { %>
+              <legend>New Widget</legend>
+            <% } else { %>
+              <legend>Edit Widget</legend>
+            <% } %>
+            <label>
+              Name:<br>
+              <input type="text" name="name" value="<%- model.get('name') %>">
+            </label>
+            <label>
+              Description:<br>
+              <textarea name="description"><%- model.get('description') %></textarea>
+            </label>
+            <label>
+              Dimensions:<br>
+              <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="span8">
+          <!-- widget preview -->
+        </div>
+      </div>
+
+      <div class="row-fluid">
+        <div class="span12">
+          <label>
+            Source:<br>
+            <textarea name="source"><%- model.get('source') %></textarea>
+          </label>
+          <input type="button" value="save">
+          <% if (!model.isNew()) { %>
+            <input type="button" value="delete">
+          <% } %>
+        </div>
+      </div>
     </script>
   </head>
 
@@ -73,7 +91,7 @@
               <li><a href="#about">About</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
-          </div><!--/.nav-collapse -->
+          </div>
         </div>
       </div>
     </div>
@@ -85,7 +103,7 @@
         </div>
 
         <div id="widget-editor" class="span9">
-          <!-- widget-editor -->
+          <!-- widget editor -->
         </div>
       </div>
     </div>
