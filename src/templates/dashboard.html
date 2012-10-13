@@ -26,19 +26,19 @@
         <form>
           <label>
             Name:<br>
-            <input type="text" name="name" value="<%= name %>">
+            <input type="text" name="name" value="<%- model.get('name') %>">
           </label>
           <label>
             Description:<br>
-            <textarea name="description"><%= description %></textarea>
+            <textarea name="description"><%- model.get('description') %></textarea>
           </label>
           <label>
             Dimensions:<br>
-            <input type="number" name="dimensions" value="<%= dimensions %>">
+            <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
           </label>
           <label>
             Source:<br>
-            <textarea name="source"><%= source %></textarea>
+            <textarea name="source"><%- model.get('source') %></textarea>
           </label>
           <input type="button" value="save">
           <input type="button" value="delete">
@@ -50,7 +50,7 @@
         <ul class="nav nav-list">
           <li class="nav-header">Widget Library</li>
           <% _.each(models, function(model) { %>
-            <li><a href="#<%= model.id %>"><%= model.name %></a></li>
+            <li><a href="#<%- model.id %>"><%- model.name %></a></li>
           <% }); %>
         </ul>
       </div><!--/.well -->
