@@ -19,12 +19,26 @@ $(function() {
         el: $('#widget-library'),
         template: _.template($('#widget-library-tpl').html()),
 
+        events: {
+            'click li a': 'loadWidgetDefinition',
+        },
+
         render: function() {
             var view = this;
             view.collection.fetch({success: function() {
                 view.$el.html(view.template({models: view.collection.toJSON()}));
             }});
             return view;
+        },
+
+        loadWidgetDefinition: function(e) {
+            var id = e.target.hash.substr(1);
+            var model = this.collection.get(id);
+
+            var widget_editor = new WidgetDefinitionView({
+                model: model
+            });
+            widget_editor.render();
         }
     });
 
@@ -33,8 +47,8 @@ $(function() {
         template: _.template($('#widget-editor-tpl').html()),
 
         events: {
-            'click input[type="button"][value="save"]': 'save',
-            'click input[type="button"][value="delete"]': 'delete'
+            'click input[type="button"][value="save"]': 'save'
+            //'click input[type="button"][value="delete"]': 'delete'
         },
 
         render: function() {
@@ -54,8 +68,13 @@ $(function() {
         }
     });
 
-    var App = new WidgetLibraryView({
+    var widget_library = new WidgetLibraryView({
         collection: new WidgetDefinitionList()
     });
-    App.render();
+    widget_library.render();
+
+    var widget_editor = new WidgetDefinitionView({
+        model: new WidgetDefinition()
+    });
+    widget_editor.render();
 });

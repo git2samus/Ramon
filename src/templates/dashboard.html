@@ -50,7 +50,7 @@
         <ul class="nav nav-list">
           <li class="nav-header">Widget Library</li>
           <% _.each(models, function(model) { %>
-            <li><a href="#"><%= model.name %></a></li>
+            <li><a href="#<%= model.id %>"><%= model.name %></a></li>
           <% }); %>
         </ul>
       </div><!--/.well -->
