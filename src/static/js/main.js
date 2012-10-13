@@ -8,12 +8,10 @@ $(function() {
         },
         url: 'ws/widget-definition/'
     });
-
     var WidgetDefinitionList = Backbone.Collection.extend({
         model: WidgetDefinition,
         url: 'ws/widget-definition/'
     });
-    //var WidgetDefinitions = new WidgetDefinitionList();
 
     var WidgetLibraryView = Backbone.View.extend({
         el: $('#widget-library'),
@@ -47,6 +45,7 @@ $(function() {
         template: _.template($('#widget-editor-tpl').html()),
 
         events: {
+            'change input': 'updateModel',
             'click input[type="button"][value="save"]': 'save'
             //'click input[type="button"][value="delete"]': 'delete'
         },
@@ -56,15 +55,13 @@ $(function() {
             return this;
         },
 
-        save: function() {
-            var data = {};
-            $('form :input', this.$el).each(function(i, e) {
-                var $e = $(e);
-                if ($e.attr('name'))
-                    data[$e.attr('name')] = $e.val();
-            });
+        updateModel: function(e) {
+            var $target = $(e.target);
+            this.model.set($target.attr('name'), $target.val());
+        },
 
-            this.model.save(data);
+        save: function() {
+            this.model.save();
         }
     });
 
