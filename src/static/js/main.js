@@ -22,11 +22,8 @@ $(function() {
         },
 
         render: function() {
-            var view = this;
-            view.collection.fetch({success: function() {
-                view.$el.html(view.template({models: view.collection.toJSON()}));
-            }});
-            return view;
+            this.$el.html(this.template({models: this.collection.toJSON()}));
+            return this;
         },
 
         loadWidgetDefinition: function(e) {
@@ -57,20 +54,37 @@ $(function() {
 
         updateModel: function(e) {
             var $target = $(e.target);
-            this.model.set($target.attr('name'), $target.val());
+            if ($target.attr('name'))
+                this.model.set($target.attr('name'), $target.val());
         },
 
         save: function() {
-            this.model.save();
+            var view = this;
+            var library = this.options.library;
+            if (view.model.isNew())
+                library.collection.add(view.model);
+
+            view.model.save(null, {
+                success: function() {
+                    library.render();
+                }
+            });
         }
     });
 
+
+    var widget_collection = new WidgetDefinitionList();
     var widget_library = new WidgetLibraryView({
-        collection: new WidgetDefinitionList()
+        collection: widget_collection
     });
-    widget_library.render();
+    widget_collection.fetch({
+        success: function() {
+            widget_library.render();
+        }
+    });
 
     var widget_editor = new WidgetDefinitionView({
+        library: widget_library,
         model: new WidgetDefinition()
     });
     widget_editor.render();
