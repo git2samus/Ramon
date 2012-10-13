@@ -6,7 +6,6 @@ $(function() {
             'dimensions': 1,
             'source': '{}'
         },
-
         url: 'ws/widget-definition/'
     });
 
@@ -14,14 +13,28 @@ $(function() {
         model: WidgetDefinition,
         url: 'ws/widget-definition/'
     });
-    var WidgetDefinitions = new WidgetDefinitionList();
-    WidgetDefinitions.fetch();
+    //var WidgetDefinitions = new WidgetDefinitionList();
+
+    var WidgetLibraryView = Backbone.View.extend({
+        el: $('#widget-library'),
+        template: _.template($('#widget-library-tpl').html()),
+
+        render: function() {
+            var view = this;
+            view.collection.fetch({success: function() {
+                view.$el.html(view.template({models: view.collection.toJSON()}));
+            }});
+            return view;
+        }
+    });
 
     var WidgetDefinitionView = Backbone.View.extend({
-        template: _.template($('#widget-definition-tpl').html()),
+        el: $('#widget-editor'),
+        template: _.template($('#widget-editor-tpl').html()),
 
         events: {
-            'click input[type="button"]': 'save'
+            'click input[type="button"][value="save"]': 'save',
+            'click input[type="button"][value="delete"]': 'delete'
         },
 
         render: function() {
@@ -41,9 +54,8 @@ $(function() {
         }
     });
 
-    var App = new WidgetDefinitionView({
-        el: $('#main'),
-        model: new WidgetDefinition()
+    var App = new WidgetLibraryView({
+        collection: new WidgetDefinitionList()
     });
     App.render();
 });
