@@ -17,8 +17,11 @@ $(function() {
         el: $('#widget-library'),
         template: _.template($('#widget-library-tpl').html()),
 
-        render: function() {
-            this.$el.html(this.template({models: this.collection.toJSON()}));
+        render: function(id) {
+            this.$el.html(this.template({
+                models: this.collection.toJSON(),
+                current_id: (typeof(id) == 'undefined')? 'new' : id,
+            }));
             return this;
         },
     });
@@ -87,7 +90,7 @@ $(function() {
         editWidget: function(id) {
             widget_collection.fetch({
                 success: function() {
-                    widget_library.render();
+                    widget_library.render(id);
 
                     widget_editor.model = widget_collection.get(id); //TODO validation
                     widget_editor.render();
