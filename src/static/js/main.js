@@ -4,37 +4,23 @@ $(function() {
             'name': 'new widget',
             'description': 'this is a new widget',
             'dimensions': 1,
-            'source': '{}'
+            'source': '{}',
         },
-        url: 'ws/widget-definition/'
+        url: 'ws/widget-definition/',
     });
     var WidgetDefinitionList = Backbone.Collection.extend({
         model: WidgetDefinition,
-        url: 'ws/widget-definition/'
+        url: 'ws/widget-definition/',
     });
 
     var WidgetLibraryView = Backbone.View.extend({
         el: $('#widget-library'),
         template: _.template($('#widget-library-tpl').html()),
 
-        events: {
-            'click li a': 'loadWidgetDefinition',
-        },
-
         render: function() {
             this.$el.html(this.template({models: this.collection.toJSON()}));
             return this;
         },
-
-        loadWidgetDefinition: function(e) {
-            var id = e.target.hash.substr(1);
-            var model = this.collection.get(id);
-
-            var widget_editor = new WidgetDefinitionView({
-                model: model
-            });
-            widget_editor.render();
-        }
     });
 
     var WidgetDefinitionView = Backbone.View.extend({
@@ -69,7 +55,7 @@ $(function() {
                     library.render();
                 }
             });
-        }
+        },
     });
 
 
@@ -77,15 +63,39 @@ $(function() {
     var widget_library = new WidgetLibraryView({
         collection: widget_collection
     });
-    widget_collection.fetch({
-        success: function() {
-            widget_library.render();
-        }
+
+    var widget_editor = new WidgetDefinitionView();
+
+
+    var Workspace = Backbone.Router.extend({
+        routes: {
+            '':         'newWidget',
+            'edit/:id': 'editWidget',
+        },
+
+        newWidget: function() {
+            widget_collection.fetch({
+                success: function() {
+                    widget_library.render();
+
+                    widget_editor.model = new WidgetDefinition();
+                    widget_editor.render();
+                },
+            });
+        },
+
+        editWidget: function(id) {
+            widget_collection.fetch({
+                success: function() {
+                    widget_library.render();
+
+                    widget_editor.model = widget_collection.get(id); //TODO validation
+                    widget_editor.render();
+                },
+            });
+        },
     });
 
-    var widget_editor = new WidgetDefinitionView({
-        library: widget_library,
-        model: new WidgetDefinition()
-    });
-    widget_editor.render();
+    var workspace = new Workspace();
+    Backbone.history.start();
 });
