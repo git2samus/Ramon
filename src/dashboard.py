@@ -59,10 +59,8 @@ def widget_definition_id(widget_id):
 
         result = {}
     elif request.method == 'DELETE':
-        #XXX should use id from payload or from url?
         #TODO validation
-        request_payload = json.loads(request.data)
-        query_db('delete from widget_definition where id=?', widget_id)
+        query_db('delete from widget_definition where id=?', [widget_id])
 
         result = {}
     else:

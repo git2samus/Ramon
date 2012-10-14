@@ -25,9 +25,9 @@
           <li class="nav-header">Widget Library</li>
           <% _.each(models, function(model) { %>
             <% if (model.id == current_id) { %>
-              <li class="active"><a href="#edit/<%- model.id %>"><%- model.name %></a></li>
+              <li class="active"><a href="#<%- model.id %>"><%- model.name %></a></li>
             <% } else { %>
-              <li><a href="#edit/<%- model.id %>"><%- model.name %></a></li>
+              <li><a href="#<%- model.id %>"><%- model.name %></a></li>
             <% } %>
           <% }); %>
 

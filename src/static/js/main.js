@@ -43,8 +43,7 @@ $(function() {
         events: {
             'change input':    'updateModel',
             'change textarea': 'updateModel',
-            'click input[type="button"][value="save"]': 'save',
-            //'click input[type="button"][value="delete"]': 'delete'
+            'click input[type="button"]': 'updateDB',
         },
 
         render: function() {
@@ -58,12 +57,39 @@ $(function() {
                 this.model.set($target.attr('name'), $target.val());
         },
 
-        save: function() {
-            this.model.save(null, {
-                success: function() {
-                    dispatcher.trigger('library:refresh');
-                },
-            });
+        updateDB: function(e) {
+            var view = this;
+            var model = this.model;
+            var collection = this.collection;
+
+            var $target = $(e.target);
+            switch ($target.attr('value')) {
+            case 'save':
+                model.save(null, {
+                    success: function() {
+                        collection.fetch({
+                            success: function() {
+                                if (model.isNew())
+                                    dispatcher.trigger('loadWidget', 'new');
+                                else
+                                    dispatcher.trigger('loadWidget', model.id);
+                            },
+                        });
+                    },
+                });
+                break;
+            case 'delete':
+                model.destroy({
+                    success: function() {
+                        collection.fetch({
+                            success: function() {
+                                dispatcher.trigger('navigate', 'new');
+                            },
+                        });
+                    },
+                });
+                break;
+            }
         },
     });
 
@@ -73,23 +99,27 @@ $(function() {
         collection: widget_collection,
     });
 
-    var widget_editor = new WidgetDefinitionView();
+    var widget_editor = new WidgetDefinitionView({
+        collection: widget_collection,
+    });
 
+    dispatcher.on('loadWidget', function(id) {
+        widget_library.options.current_id = id;              //TODO validation
+        widget_library.render();
 
-    dispatcher.on('library:refresh', function() {
-        widget_collection.fetch({
-            success: function() {
-                widget_library.render();
-            },
-        });
+        if (id == 'new')
+            widget_editor.model = new WidgetDefinition();
+        else
+            widget_editor.model = widget_collection.get(id); //TODO validation
+        widget_editor.render();
     });
 
 
     var Workspace = Backbone.Router.extend({
         routes: {
-            '':         'redirectNew',
-            'new':      'newWidget',
-            'edit/:id': 'editWidget',
+            '':    'redirectNew',
+            'new': 'newWidget',
+            ':id': 'editWidget',
         },
 
         redirectNew: function() {
@@ -97,22 +127,18 @@ $(function() {
         },
 
         newWidget: function() {
-            widget_library.options.current_id = 'new';
-            widget_library.render();
-
-            widget_editor.model = new WidgetDefinition();
-            widget_editor.render();
+            dispatcher.trigger('loadWidget', 'new');
         },
 
         editWidget: function(id) {
-            widget_library.options.current_id = id;          //TODO validation
-            widget_library.render();
-
-            widget_editor.model = widget_collection.get(id); //TODO validation
-            widget_editor.render();
+            dispatcher.trigger('loadWidget', id);
         },
     });
     var workspace = new Workspace();
+
+    dispatcher.on('navigate', function(path) {
+        workspace.navigate(path, {trigger: true});
+    });
 
 
     // load widgets - fire route afterwards (calls render)
