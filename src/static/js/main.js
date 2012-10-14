@@ -6,11 +6,16 @@ $(function() {
             'dimensions': 1,
             'source': '{}',
         },
-        url: 'ws/widget-definition/',
+        url: function() {
+            if (this.isNew())
+                return 'ws/widget-definition';
+            else
+                return 'ws/widget-definition/' + this.id;
+        },
     });
     var WidgetDefinitionList = Backbone.Collection.extend({
         model: WidgetDefinition,
-        url: 'ws/widget-definition/',
+        url: 'ws/widget-definition',
     });
 
     var WidgetLibraryView = Backbone.View.extend({
@@ -31,8 +36,9 @@ $(function() {
         template: _.template($('#widget-editor-tpl').html()),
 
         events: {
-            'change input': 'updateModel',
-            'click input[type="button"][value="save"]': 'save'
+            'change input':    'updateModel',
+            'change textarea': 'updateModel',
+            'click input[type="button"][value="save"]': 'save',
             //'click input[type="button"][value="delete"]': 'delete'
         },
 
@@ -48,16 +54,7 @@ $(function() {
         },
 
         save: function() {
-            var view = this;
-            var library = this.options.library;
-            if (view.model.isNew())
-                library.collection.add(view.model);
-
-            view.model.save(null, {
-                success: function() {
-                    library.render();
-                }
-            });
+            this.model.save();
         },
     });
 
@@ -73,13 +70,14 @@ $(function() {
     var Workspace = Backbone.Router.extend({
         routes: {
             '':         'newWidget',
+            'new':      'newWidget',
             'edit/:id': 'editWidget',
         },
 
         newWidget: function() {
             widget_collection.fetch({
                 success: function() {
-                    widget_library.render();
+                    widget_library.render('new');
 
                     widget_editor.model = new WidgetDefinition();
                     widget_editor.render();

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-import os, json, sqlite3
+import os, sqlite3
 from contextlib import closing
-from flask import Flask, render_template, g, request
+from flask import Flask, render_template, g, request, json
 
 app = Flask(__name__)
 
@@ -34,7 +34,7 @@ def teardown_request(exception):
         g.db.close()
 
 
-@app.route('/ws/widget-definition/', methods=['GET', 'POST'])
+@app.route('/ws/widget-definition', methods=['GET', 'POST'])
 def widget_definition():
     if request.method == 'POST':
         #TODO validation
@@ -42,11 +42,33 @@ def widget_definition():
         query_db('insert into widget_definition(name, description, dimensions, source) values(?, ?, ?, ?)',
                  [request_payload[key] for key in ('name', 'description', 'dimensions', 'source')])
 
-        result = ''
+        result = {}
     else:
-        result = json.dumps(query_db('select * from widget_definition'))
+        result = query_db('select * from widget_definition')
 
-    return result, 200, {'content-type': 'application/json'}
+    return json.dumps(result), 200, {'content-type': 'application/json'}
+
+@app.route('/ws/widget-definition/<int:widget_id>', methods=['GET', 'PUT', 'DELETE'])
+def widget_definition_id(widget_id):
+    if request.method == 'PUT':
+        #XXX should use id from payload or from url?
+        #TODO validation
+        request_payload = json.loads(request.data)
+        query_db('update widget_definition set name=?, description=?, dimensions=?, source=? where id=?',
+                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'source', 'id')])
+
+        result = {}
+    elif request.method == 'DELETE':
+        #XXX should use id from payload or from url?
+        #TODO validation
+        request_payload = json.loads(request.data)
+        query_db('delete from widget_definition where id=?', widget_id)
+
+        result = {}
+    else:
+        result = query_db('select * from widget_definition where id = ?', [widget_id], one=True)
+
+    return json.dumps(result), 200, {'content-type': 'application/json'}
 
 @app.route('/')
 def dashboard():
