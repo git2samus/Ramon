@@ -87,9 +87,13 @@ $(function() {
 
     var Workspace = Backbone.Router.extend({
         routes: {
-            '':         'newWidget',
+            '':         'redirectNew',
             'new':      'newWidget',
             'edit/:id': 'editWidget',
+        },
+
+        redirectNew: function() {
+            this.navigate('new', {trigger: true});
         },
 
         newWidget: function() {
