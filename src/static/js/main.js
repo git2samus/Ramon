@@ -7,11 +7,16 @@ $(function() {
             'description': 'this is a new widget',
             'dimensions': 1,
             'multiseries': false,
-            'source': '{\n' +
-            '    config: function(cfg) { },\n' +
-            '    loadData: function(data) { },\n' +
-            '    render: function() { },\n' +
-            '}',
+            'source': [
+                '{',
+                '    loadConfig: function(cfg) { },',
+                '    loadData: function(data) { },',
+                '    render: function() {',
+                '        this.$el.html(\'new widget\');',
+                '        return this;',
+                '    },',
+                '}',
+            ].join('\n'),
         },
         url: function() {
             if (this.isNew())
@@ -48,13 +53,28 @@ $(function() {
         events: {
             'change input':    'updateModel',
             'change textarea': 'updateModel',
-            'change textarea[name="source"]': 'updatePreview',
             'click input[type="button"]': 'updateDB',
         },
 
         render: function() {
-            this.$el.html(this.template({model: this.model}));
-            return this;
+            var view = this;
+            view.$el.html(view.template({model: view.model}));
+
+            var editor = ace.edit('editor');
+            var session = editor.getSession();
+            session.setMode('ace/mode/javascript');
+            session.setUseSoftTabs(true);
+            session.setUseWrapMode(false);
+
+            session.on('change', function(e) {
+                view.model.set('source', editor.getValue());
+                view.updatePreview();
+            });
+            editor.setValue(view.model.get('source'));
+            editor.clearSelection();
+
+            view.options.editor = editor;
+            return view;
         },
 
         updateModel: function(e) {
@@ -110,12 +130,12 @@ $(function() {
             try {
                 var options = (new Function('return '+source+';'))();
                 var DynamicView = Backbone.View.extend(options);
-                var dynamic_view = new DynamicView({
+                var widget_preview = new DynamicView({
                     el: $('#widget-preview'),
                 });
-                dynamic_view.config(cfg);
-                dynamic_view.loadData(data);
-                dynamic_view.render();
+                widget_preview.loadConfig(cfg);
+                widget_preview.loadData(data);
+                widget_preview.render();
             } catch(e) {
                 $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
             }
