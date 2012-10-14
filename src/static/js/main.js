@@ -6,7 +6,11 @@ $(function() {
             'name': 'new widget',
             'description': 'this is a new widget',
             'dimensions': 1,
-            'source': '{}',
+            'source': '{\n' +
+            '    config: function(cfg) { },\n' +
+            '    loadData: function(data) { },\n' +
+            '    render: function() { },\n' +
+            '}',
         },
         url: function() {
             if (this.isNew())
@@ -43,6 +47,7 @@ $(function() {
         events: {
             'change input':    'updateModel',
             'change textarea': 'updateModel',
+            'change textarea[name="source"]': 'updatePreview',
             'click input[type="button"]': 'updateDB',
         },
 
@@ -91,6 +96,25 @@ $(function() {
                 break;
             }
         },
+
+        updatePreview: function() {
+            var source = this.model.get('source');
+            var cfg = {};
+            var data = {};
+
+            try {
+                var options = (new Function('return '+source+';'))();
+                var DynamicView = Backbone.View.extend(options);
+                var dynamic_view = new DynamicView({
+                    el: $('#widget-preview'),
+                });
+                dynamic_view.config(cfg);
+                dynamic_view.loadData(data);
+                dynamic_view.render();
+            } catch(e) {
+                $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
+            }
+        },
     });
 
 
@@ -112,6 +136,7 @@ $(function() {
         else
             widget_editor.model = widget_collection.get(id); //TODO validation
         widget_editor.render();
+        widget_editor.updatePreview();
     });
 
 

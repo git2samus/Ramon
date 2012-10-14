@@ -66,20 +66,27 @@
         </div>
 
         <div class="span8">
-          <!-- widget preview -->
+          <fieldset>
+            <legend>Preview</legend>
+            <div id="widget-preview">
+              <!-- widget preview -->
+            </div>
+          </fieldset>
         </div>
       </div>
 
       <div class="row-fluid">
         <div class="span12">
-          <label>
-            Source:<br>
-            <textarea name="source"><%- model.get('source') %></textarea>
-          </label>
-          <input type="button" value="save">
-          <% if (!model.isNew()) { %>
-            <input type="button" value="delete">
-          <% } %>
+          <fieldset>
+            <legend>Source</legend>
+            <label>
+              <textarea name="source"><%- model.get('source') %></textarea>
+            </label>
+            <input type="button" value="save">
+            <% if (!model.isNew()) { %>
+              <input type="button" value="delete">
+            <% } %>
+          </fieldset>
         </div>
       </div>
     </script>
