@@ -6,6 +6,7 @@ $(function() {
             'name': 'new widget',
             'description': 'this is a new widget',
             'dimensions': 1,
+            'multiseries': false,
             'source': '{\n' +
             '    config: function(cfg) { },\n' +
             '    loadData: function(data) { },\n' +
@@ -58,8 +59,12 @@ $(function() {
 
         updateModel: function(e) {
             var $target = $(e.target);
-            if ($target.attr('name'))
-                this.model.set($target.attr('name'), $target.val());
+            if ($target.attr('name')) {
+                if ($target.attr('type') == 'checkbox')
+                    this.model.set($target.attr('name'), $target.attr('checked') == 'checked');
+                else
+                    this.model.set($target.attr('name'), $target.val());
+            }
         },
 
         updateDB: function(e) {

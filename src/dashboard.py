@@ -39,8 +39,8 @@ def widget_definition():
     if request.method == 'POST':
         #TODO validation
         request_payload = json.loads(request.data)
-        query_db('insert into widget_definition(name, description, dimensions, source) values(?, ?, ?, ?)',
-                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'source')])
+        query_db('insert into widget_definition(name, description, dimensions, multiseries, source) values(?, ?, ?, ?, ?)',
+                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'multiseries', 'source')])
 
         result = {}
     else:
@@ -54,8 +54,8 @@ def widget_definition_id(widget_id):
         #XXX should use id from payload or from url?
         #TODO validation
         request_payload = json.loads(request.data)
-        query_db('update widget_definition set name=?, description=?, dimensions=?, source=? where id=?',
-                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'source', 'id')])
+        query_db('update widget_definition set name=?, description=?, dimensions=?, multiseries=?, source=? where id=?',
+                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'multiseries', 'source', 'id')])
 
         result = {}
     elif request.method == 'DELETE':

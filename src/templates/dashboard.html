@@ -62,6 +62,13 @@
               Dimensions:<br>
               <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
             </label>
+            <label>
+              <% if (model.get('multiseries')) { %>
+                <input type="checkbox" name="multiseries" checked="checked"> Multi-Series
+              <% } else { %>
+                <input type="checkbox" name="multiseries"> Multi-Series
+              <% } %>
+            </label>
           </fieldset>
         </div>
 
