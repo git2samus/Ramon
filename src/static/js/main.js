@@ -1,4 +1,4 @@
-$(function() {
+function main() {
     var dispatcher = _.clone(Backbone.Events);
 
     var WidgetDefinition = Backbone.Model.extend({
@@ -198,4 +198,4 @@ $(function() {
             Backbone.history.start();
         },
     });
-});
+};

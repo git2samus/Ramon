@@ -143,7 +143,15 @@
     <script src="static/js/libs/backbone-min.js"></script>
     <script src="static/js/libs/ace_editor/ace.js"></script>
     <script src="static/js/libs/highcharts/highcharts.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
 
     <script src="static/js/main.js"></script>
+    <script>
+      // Load the Visualization API and the piechart package.
+      google.load('visualization', '1', {'packages':['corechart']});
+
+      // Set a callback to run when the Google Visualization library is loaded.
+      google.setOnLoadCallback(function() { $(main); });
+    </script>
   </body>
 </html>
