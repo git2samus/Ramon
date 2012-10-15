@@ -65,6 +65,7 @@ $(function() {
             session.setMode('ace/mode/javascript');
             session.setUseSoftTabs(true);
             session.setUseWrapMode(false);
+            session.setUseWorker(false); // disable syntax checker
 
             session.on('change', function(e) {
                 view.model.set('source', editor.getValue());
