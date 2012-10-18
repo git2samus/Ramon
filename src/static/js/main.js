@@ -6,6 +6,7 @@ function main() {
             'name': 'new widget',
             'description': 'this is a new widget',
             'dimensions': 1,
+            'depth': 0,
             'multiseries': false,
             'source': [
                 '{',

@@ -68,10 +68,14 @@
               <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
             </label>
             <label>
+              Depth:<br>
+              <input type="number" name="depth" value="<%- model.get('depth') %>">
+            </label>
+            <label>
               <% if (model.get('multiseries')) { %>
-                <input type="checkbox" name="multiseries" checked="checked"> Multi-Series
+                <input type="checkbox" name="multiseries" checked="checked"> multiseries
               <% } else { %>
-                <input type="checkbox" name="multiseries"> Multi-Series
+                <input type="checkbox" name="multiseries"> multiseries
               <% } %>
             </label>
           </fieldset>
@@ -143,14 +147,14 @@
     <script src="static/js/libs/backbone-min.js"></script>
     <script src="static/js/libs/ace_editor/ace.js"></script>
     <script src="static/js/libs/highcharts/highcharts.js"></script>
-    <script src="https://www.google.com/jsapi"></script>
 
     <script src="static/js/main.js"></script>
-    <script>
-      // Load the Visualization API and the piechart package.
-      google.load('visualization', '1', {'packages':['corechart', 'table']});
 
-      // Set a callback to run when the Google Visualization library is loaded.
+    <script src="https://www.google.com/jsapi"></script>
+    <script>
+      // load Visualization API and additional chart packages
+      google.load('visualization', '1', {'packages':['corechart', 'table']});
+      // run when the Google Visualization library is loaded and the DOM is ready
       google.setOnLoadCallback(function() { $(main); });
     </script>
   </body>
