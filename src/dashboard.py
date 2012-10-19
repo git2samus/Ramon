@@ -34,6 +34,26 @@ def teardown_request(exception):
         g.db.close()
 
 
+@app.route('/ds/browser-stats', methods=['OPTIONS'])
+def browser_stats():
+    """
+    RDBMS cols: id, year, month, os, browser, browser_version, region, country, city
+    dimensions/drillables:
+        -year, month
+        -os
+        -browser, browser_version
+        -region, country, city
+    """
+
+    result = {
+            "time": ["year", "month"],
+              "os": ["id_os_name"],
+         "browser": ["id_browser_name", "id_browser_version"],
+        "location": ["id_region", "id_country", "id_city"],
+    }
+    return json.dumps(result), 200, {'content-type': 'application/json'}
+
+
 @app.route('/ws/widget-definition', methods=['GET', 'POST'])
 def widget_definition():
     if request.method == 'POST':
