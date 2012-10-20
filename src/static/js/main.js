@@ -1,4 +1,7 @@
 function main() {
+    // X-HTTP-Method-Override browser compatibility workaround
+    Backbone.emulateHTTP = true;
+
     // nessage-passing helper
     var dispatcher = _.clone(Backbone.Events);
 
