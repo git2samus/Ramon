@@ -1,6 +1,8 @@
 function main() {
+    // nessage-passing helper
     var dispatcher = _.clone(Backbone.Events);
 
+    // widget definition persistence
     var WidgetDefinition = Backbone.Model.extend({
         defaults: {
             'name': 'new widget',
@@ -31,6 +33,7 @@ function main() {
         url: 'ws/widget-definition',
     });
 
+    // list of available widgets view
     var WidgetLibraryView = Backbone.View.extend({
         el: $('#widget-library'),
         template: _.template($('#widget-library-tpl').html()),
@@ -47,6 +50,7 @@ function main() {
         },
     });
 
+    // widget editor view
     var WidgetDefinitionView = Backbone.View.extend({
         el: $('#widget-editor'),
         template: _.template($('#widget-editor-tpl').html()),
@@ -145,6 +149,7 @@ function main() {
     });
 
 
+    // instances
     var widget_collection = new WidgetDefinitionList();
     var widget_library = new WidgetLibraryView({
         collection: widget_collection,
@@ -167,6 +172,7 @@ function main() {
     });
 
 
+    // routes
     var Workspace = Backbone.Router.extend({
         routes: {
             '':    'redirectNew',
@@ -193,7 +199,7 @@ function main() {
     });
 
 
-    // load widgets - fire route afterwards (calls render)
+    // load widget data - fire route afterwards (calls render)
     widget_collection.fetch({
         success: function() {
             Backbone.history.start();

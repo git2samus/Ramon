@@ -3,6 +3,7 @@ import os, sqlite3
 from contextlib import closing
 from flask import Flask, render_template, g, request, json
 
+# middleware to add support for X-HTTP-Method-Override headers
 class HTTPMethodOverrideMiddleware(object):
     allowed_methods = frozenset([
         'GET',
@@ -27,10 +28,12 @@ class HTTPMethodOverrideMiddleware(object):
             environ['CONTENT_LENGTH'] = '0'
         return self.app(environ, start_response)
 
+# WSGI application
 app = Flask(__name__)
 app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
 
+# database helpers
 DATABASE = 'dashboard.db'
 
 def init_db():
@@ -59,6 +62,7 @@ def teardown_request(exception):
         g.db.close()
 
 
+# datasources
 @app.route('/ds/browser-stats', methods=['OPTIONS'])
 def browser_stats():
     """
@@ -79,6 +83,7 @@ def browser_stats():
     return json.dumps(result), 200, {'content-type': 'application/json'}
 
 
+# webservices
 @app.route('/ws/widget-definition', methods=['GET', 'POST'])
 def widget_definition():
     if request.method == 'POST':
@@ -113,11 +118,13 @@ def widget_definition_id(widget_id):
 
     return json.dumps(result), 200, {'content-type': 'application/json'}
 
+# homepage
 @app.route('/')
 def dashboard():
     return render_template('dashboard.html')
 
 
+# initdb / runserver
 if __name__ == '__main__':
     if not os.path.exists(DATABASE):
         init_db()
