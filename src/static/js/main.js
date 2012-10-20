@@ -1,3 +1,15 @@
+function getDatasourceOptions(url, settings) {
+    if (Backbone.emulateHTTP) {
+        settings.type = 'POST';
+        settings.headers = settings.headers || {};
+        settings.headers['X-HTTP-Method-Override'] = 'OPTIONS';
+    } else {
+        settings.type = 'OPTIONS';
+    }
+
+    return $.ajax(url, settings);
+}
+
 function main() {
     // X-HTTP-Method-Override browser compatibility workaround
     Backbone.emulateHTTP = true;
