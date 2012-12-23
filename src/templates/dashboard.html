@@ -25,25 +25,22 @@
     <![endif]-->
 
     <script id="widget-library-tpl" type="text/template">
-      <div class="well sidebar-nav">
-        <ul class="nav nav-list">
-          <li class="nav-header">Widget Library</li>
-          <% _.each(models, function(model) { %>
-            <% if (model.id == current_id) { %>
-              <li class="active"><a href="#<%- model.id %>"><%- model.name %></a></li>
-            <% } else { %>
-              <li><a href="#<%- model.id %>"><%- model.name %></a></li>
-            <% } %>
-          <% }); %>
-
-          <li class="nav-header"></li>
-          <% if (current_id == 'new') { %>
-            <li class="active"><a href="#new"><em>+add widget</em></a></li>
-          <% } else { %>
-            <li><a href="#new"><em>+add widget</em></a></li>
-          <% } %>
-        </ul>
-      </div>
+      <ul class="nav" role="navigation">
+        <li class="dropdown">
+          <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Widgets <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+            <% _.each(models, function(model) { %>
+              <% if (current_id == model.id) { %>
+                <li><a tabindex="-1" href="#<%- model.id %>"><strong><%- model.name %></strong></a></li>
+              <% } else { %>
+                <li><a tabindex="-1" href="#<%- model.id %>"><%- model.name %></a></li>
+              <% } %>
+            <% }); %>
+            <li class="divider"></li>
+            <li><a tabindex="-1" href="#new"><em>+add widget</em></a></li>
+          </ul>
+        </li>
+      </ul>
     </script>
 
     <script id="widget-editor-tpl" type="text/template">
@@ -112,33 +109,14 @@
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
           <a class="brand" href="#">Workbench</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-          </div>
+          <div id="widget-library"></div>
         </div>
       </div>
     </div>
 
-    <div class="container-fluid">
-      <div class="row-fluid">
-        <div id="widget-library" class="span3">
-          <!-- widget library -->
-        </div>
-
-        <div id="widget-editor" class="span9">
-          <!-- widget editor -->
-        </div>
-      </div>
+    <div id="widget-editor" class="container-fluid">
+      <!-- widget editor -->
     </div>
 
     <script src="static/js/libs/jquery-1.8.2.min.js"></script>
