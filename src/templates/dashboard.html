@@ -27,17 +27,19 @@
     <script id="widget-library-tpl" type="text/template">
       <ul class="nav" role="navigation">
         <li class="dropdown">
-          <a id="drop1" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Widgets <b class="caret"></b></a>
-          <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
-            <% _.each(models, function(model) { %>
-              <% if (current_id == model.id) { %>
-                <li><a tabindex="-1" href="#<%- model.id %>"><strong><%- model.name %></strong></a></li>
-              <% } else { %>
-                <li><a tabindex="-1" href="#<%- model.id %>"><%- model.name %></a></li>
-              <% } %>
-            <% }); %>
-            <li class="divider"></li>
-            <li><a tabindex="-1" href="#new"><em>+add widget</em></a></li>
+          <a id="widget-library-dropdown" href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">Widgets <b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="widget-library-dropdown">
+            <% if (models.size() > 0) { %>
+              <% models.each(function(model) { %>
+                <% if (model == currentModel) { %>
+                  <li><a tabindex="-1" href="#<%- model.id %>"><strong><%- model.get('name') %> (<%- model.get('widgetClass') %>)</strong></a></li>
+                <% } else { %>
+                  <li><a tabindex="-1" href="#<%- model.id %>"><%- model.get('name') %> (<%- model.get('widgetClass') %>)</a></li>
+                <% } %>
+              <% }); %>
+              <li class="divider"></li>
+            <% } %>
+            <li><a tabindex="-1" href="#"><em>new widget</em></a></li>
           </ul>
         </li>
       </ul>
@@ -65,7 +67,7 @@
         <div class="span6">
           <legend style="text-align: right;">
             <div style="float: left;">
-              <% if (model.isNew()) { %>
+              <% if (currentModel.isNew()) { %>
                 New Widget
               <% } else { %>
                 Edit Widget
@@ -73,15 +75,15 @@
             </div>
 
             <input type="button" value="save">
-            <% if (!model.isNew()) { %>
+            <% if (!currentModel.isNew()) { %>
               <input type="button" value="delete">
             <% } %>
           </legend>
 
-          <div class="accordion" id="accordion1">
+          <div class="accordion" id="widget-editor-accordion">
             <div class="accordion-group">
               <div class="accordion-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseMetadata">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#widget-editor-accordion" href="#collapseMetadata">
                   Metadata
                 </a>
               </div>
@@ -91,31 +93,14 @@
                     <div class="span6">
                       <label>
                         Name:<br>
-                        <input type="text" name="name" value="<%- model.get('name') %>">
+                        <input type="text" name="name" value="<%- currentModel.get('name') %>">
                       </label>
                       <label>
                         Description:<br>
-                        <textarea name="description"><%- model.get('description') %></textarea>
+                        <textarea name="description"><%- currentModel.get('description') %></textarea>
                       </label>
                     </div>
                     <div class="span6">
-                      <!--
-                      <label>
-                        Dimensions:<br>
-                        <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
-                      </label>
-                      <label>
-                        Depth:<br>
-                        <input type="number" name="depth" value="<%- model.get('depth') %>">
-                      </label>
-                      <label>
-                        <% if (model.get('multiseries')) { %>
-                          <input type="checkbox" name="multiseries" checked="checked"> multiseries
-                        <% } else { %>
-                          <input type="checkbox" name="multiseries"> multiseries
-                        <% } %>
-                      </label>
-                      -->
                     </div>
                   </div>
                 </div>
@@ -124,12 +109,29 @@
 
             <div class="accordion-group">
               <div class="accordion-heading">
-                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseSource">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#widget-editor-accordion" href="#collapseSource">
                   Source
                 </a>
               </div>
               <div id="collapseSource" class="accordion-body collapse">
                 <div class="accordion-inner">
+                  <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
+                  <select name="parentClass">
+                    <% if (currentModel.get('parentClass')) { %>
+                      <option value="">BaseWidget</option>
+                    <% } else { %>
+                      <option value="" selected="selected">BaseWidget</option>
+                    <% } %>
+                    <% models.each(function(model) { %>
+                      <% if (model != currentModel) { %>
+                        <% if (model.get('widgetClass') == currentModel.get('parentClass')) { %>
+                          <option value="<%- model.get('widgetClass') %>" selected="selected"><%- model.get('widgetClass') %></option>
+                        <% } else { %>
+                          <option value="<%- model.get('widgetClass') %>"><%- model.get('widgetClass') %></option>
+                        <% } %>
+                      <% } %>
+                    <% }); %>
+                  </select>
                   <div id="editor">
                     <!-- ACE editor -->
                   </div>

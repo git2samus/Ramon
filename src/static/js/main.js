@@ -14,23 +14,21 @@ function main() {
     // X-HTTP-Method-Override browser compatibility workaround
     Backbone.emulateHTTP = true;
 
-    // nessage-passing helper
-    var dispatcher = _.clone(Backbone.Events);
-
     // widget definition persistence
     var WidgetDefinition = Backbone.Model.extend({
+        // idAttribute does not play well with isNew()
+        // className attribute conflicts with Backbone's
         defaults: {
             'name': 'new widget',
             'description': 'this is a new widget',
-            'dimensions': 1,
-            'depth': 0,
-            'multiseries': false,
+            'widgetClass': 'newWidget',
+            'parentClass': '',
             'source': [
                 '{',
                 '    loadConfig: function(cfg) { },',
                 '    loadData: function(data) { },',
                 '    render: function() {',
-                '        this.$el.html(\'new widget\');',
+                '        this.$el.html("new widget");',
                 '        return this;',
                 '    },',
                 '}',
@@ -54,31 +52,39 @@ function main() {
         template: _.template($('#widget-library-tpl').html()),
 
         render: function() {
-            if (typeof(this.options.current_id) == 'undefined')
-                this.options.current_id = 'new';
+            var view = this;
+            var model = this.model;
+            var collection = this.collection;
 
-            this.$el.html(this.template({
-                models: this.collection.toJSON(),
-                current_id: this.options.current_id,
+            view.$el.html(view.template({
+                models: collection,
+                currentModel: model
             }));
-            return this;
+            return view;
         },
     });
 
     // widget editor view
-    var WidgetDefinitionView = Backbone.View.extend({
+    var WidgetEditorView = Backbone.View.extend({
         el: $('#widget-editor'),
         template: _.template($('#widget-editor-tpl').html()),
 
         events: {
             'change input':    'updateModel',
             'change textarea': 'updateModel',
+            'change select':   'updateModel',
             'click input[type="button"]': 'updateDB',
         },
 
         render: function() {
             var view = this;
-            view.$el.html(view.template({model: view.model}));
+            var model = this.model;
+            var collection = this.collection;
+
+            view.$el.html(view.template({
+                models: collection,
+                currentModel: model
+            }));
 
             var editor = ace.edit('editor');
             var session = editor.getSession();
@@ -88,10 +94,10 @@ function main() {
             session.setUseWorker(false); // disable syntax checker
 
             session.on('change', function(e) {
-                view.model.set('source', editor.getValue());
+                model.set('source', editor.getValue());
                 view.updatePreview();
             });
-            editor.setValue(view.model.get('source'));
+            editor.setValue(model.get('source'));
             editor.clearSelection();
 
             view.options.editor = editor;
@@ -99,12 +105,17 @@ function main() {
         },
 
         updateModel: function(e) {
+            var view = this;
+            var model = this.model;
+            var collection = this.collection;
+
             var $target = $(e.target);
             if ($target.attr('name')) {
+                console.log($target.attr('name'), $target.val());
                 if ($target.attr('type') == 'checkbox')
-                    this.model.set($target.attr('name'), $target.attr('checked') == 'checked');
+                    model.set($target.attr('name'), $target.attr('checked') == 'checked');
                 else
-                    this.model.set($target.attr('name'), $target.val());
+                    model.set($target.attr('name'), $target.val());
             }
         },
 
@@ -120,10 +131,7 @@ function main() {
                     success: function() {
                         collection.fetch({
                             success: function() {
-                                if (model.isNew())
-                                    dispatcher.trigger('loadWidget', 'new');
-                                else
-                                    dispatcher.trigger('loadWidget', model.id);
+                                workspace.navigate(model.id.toString(), {trigger: true});
                             },
                         });
                     },
@@ -134,7 +142,7 @@ function main() {
                     success: function() {
                         collection.fetch({
                             success: function() {
-                                dispatcher.trigger('navigate', 'new');
+                                workspace.navigate('', {trigger: true});
                             },
                         });
                     },
@@ -144,7 +152,11 @@ function main() {
         },
 
         updatePreview: function() {
-            var source = this.model.get('source');
+            var view = this;
+            var model = this.model;
+            var collection = this.collection;
+
+            var source = model.get('source');
             var cfg = {};
             var data = {};
 
@@ -170,49 +182,32 @@ function main() {
         collection: widget_collection,
     });
 
-    var widget_editor = new WidgetDefinitionView({
+    var widget_editor = new WidgetEditorView({
         collection: widget_collection,
-    });
-
-    dispatcher.on('loadWidget', function(id) {
-        widget_library.options.current_id = id;              //TODO validation
-        widget_library.render();
-
-        if (id == 'new')
-            widget_editor.model = new WidgetDefinition();
-        else
-            widget_editor.model = widget_collection.get(id); //TODO validation
-        widget_editor.render();
-        widget_editor.updatePreview();
     });
 
 
     // routes
     var Workspace = Backbone.Router.extend({
         routes: {
-            '':    'redirectNew',
-            'new': 'newWidget',
-            ':id': 'editWidget',
+            '':          'loadWidget',
+            ':widgetId': 'loadWidget',
         },
 
-        redirectNew: function() {
-            this.navigate('new', {trigger: true});
-        },
+        loadWidget: function(widgetId) {
+            if (widgetId)
+                var model = widget_collection.get(widgetId); //TODO validation
+            else
+                var model = new WidgetDefinition();
 
-        newWidget: function() {
-            dispatcher.trigger('loadWidget', 'new');
-        },
+            widget_library.model = model;
+            widget_library.render();
 
-        editWidget: function(id) {
-            dispatcher.trigger('loadWidget', id);
+            widget_editor.model = model;
+            widget_editor.render();
         },
     });
     var workspace = new Workspace();
-
-    dispatcher.on('navigate', function(path) {
-        workspace.navigate(path, {trigger: true});
-    });
-
 
     // load widget data - fire route afterwards (calls render)
     widget_collection.fetch({

@@ -34,7 +34,7 @@ app.wsgi_app = HTTPMethodOverrideMiddleware(app.wsgi_app)
 
 
 # database helpers
-DATABASE = 'dashboard.db'
+DATABASE = 'sqlite.db'
 
 def init_db():
     with closing(connect_db()) as db:
@@ -46,10 +46,29 @@ def connect_db():
     return sqlite3.connect(DATABASE)
 
 def query_db(query, args=(), one=False):
+    mapping_dict = {
+        'id':           'id',
+        'name':         'name',
+        'description':  'description',
+        'widget_class': 'widgetClass',
+        'parent_class': 'parentClass',
+        'source':       'source',
+    }
+
     cur = g.db.execute(query, args)
     g.db.commit()
-    rv = [dict((cur.description[idx][0], value) for idx, value in enumerate(row)) for row in cur.fetchall()]
-    return (rv[0] if rv else None) if one else rv
+    rv = (dict(
+        (mapping_dict[cur.description[idx][0]], value)
+        for idx, value in enumerate(row)
+    ) for row in cur.fetchall())
+
+    if one:
+        try:
+            return rv.next()
+        except StopIteration:
+            return None
+    else:
+        return list(rv)
 
 
 @app.before_request
@@ -89,32 +108,41 @@ def widget_definition():
     if request.method == 'POST':
         #TODO validation
         request_payload = json.loads(request.data)
-        query_db('insert into widget_definition(name, description, dimensions, depth, multiseries, source) values(?, ?, ?, ?, ?, ?)',
-                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'depth', 'multiseries', 'source')])
+        if not request_payload['parentClass']:
+            request_payload['parentClass'] = None
 
-        result = {}
+        query_db('''INSERT INTO widget_definition(
+                name, description, widget_class, parent_class, source
+            ) VALUES(?, ?, ?, ?, ?)''', [
+                request_payload[key] for key in ('name', 'description', 'widgetClass', 'parentClass', 'source')
+            ]
+        )
+
+        result = query_db('SELECT * FROM widget_definition WHERE widget_class=?', [request_payload['widgetClass']], one=True)
     else:
-        result = query_db('select * from widget_definition')
+        result = query_db('SELECT * FROM widget_definition')
 
     return json.dumps(result), 200, {'content-type': 'application/json'}
 
 @app.route('/ws/widget-definition/<int:widget_id>', methods=['GET', 'PUT', 'DELETE'])
 def widget_definition_id(widget_id):
     if request.method == 'PUT':
-        #XXX should use id from payload or from url?
         #TODO validation
         request_payload = json.loads(request.data)
-        query_db('update widget_definition set name=?, description=?, dimensions=?, depth=?, multiseries=?, source=? where id=?',
-                 [request_payload[key] for key in ('name', 'description', 'dimensions', 'depth', 'multiseries', 'source', 'id')])
+        if not request_payload['parentClass']:
+            request_payload['parentClass'] = None
 
-        result = {}
+        query_db('UPDATE widget_definition SET name=?, description=?, widget_class=?, parent_class=?, source=? WHERE id=?',
+                 [request_payload[key] for key in ('name', 'description', 'widgetClass', 'parentClass', 'source')] + [widget_id])
+
+        result = query_db('SELECT * FROM widget_definition WHERE id=?', [widget_id], one=True)
     elif request.method == 'DELETE':
         #TODO validation
-        query_db('delete from widget_definition where id=?', [widget_id])
+        query_db('DELETE FROM widget_definition WHERE id=?', [widget_id])
 
         result = {}
     else:
-        result = query_db('select * from widget_definition where id = ?', [widget_id], one=True)
+        result = query_db('SELECT * FROM widget_definition WHERE id=?', [widget_id], one=True)
 
     return json.dumps(result), 200, {'content-type': 'application/json'}
 
