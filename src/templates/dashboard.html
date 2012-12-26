@@ -44,62 +44,106 @@
     </script>
 
     <script id="widget-editor-tpl" type="text/template">
+      <!-- ruler
       <div class="row-fluid">
-        <div class="span4">
-          <fieldset>
-            <% if (model.isNew()) { %>
-              <legend>New Widget</legend>
-            <% } else { %>
-              <legend>Edit Widget</legend>
-            <% } %>
-            <label>
-              Name:<br>
-              <input type="text" name="name" value="<%- model.get('name') %>">
-            </label>
-            <label>
-              Description:<br>
-              <textarea name="description"><%- model.get('description') %></textarea>
-            </label>
-            <label>
-              Dimensions:<br>
-              <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
-            </label>
-            <label>
-              Depth:<br>
-              <input type="number" name="depth" value="<%- model.get('depth') %>">
-            </label>
-            <label>
-              <% if (model.get('multiseries')) { %>
-                <input type="checkbox" name="multiseries" checked="checked"> multiseries
-              <% } else { %>
-                <input type="checkbox" name="multiseries"> multiseries
-              <% } %>
-            </label>
-          </fieldset>
-        </div>
-
-        <div class="span8">
-          <fieldset>
-            <legend>Preview</legend>
-            <div id="widget-preview">
-              <!-- widget preview -->
-            </div>
-          </fieldset>
-        </div>
+        <div class="span1">1</div>
+        <div class="span1">2</div>
+        <div class="span1">3</div>
+        <div class="span1">4</div>
+        <div class="span1">5</div>
+        <div class="span1">6</div>
+        <div class="span1">7</div>
+        <div class="span1">8</div>
+        <div class="span1">9</div>
+        <div class="span1">10</div>
+        <div class="span1">11</div>
+        <div class="span1">12</div>
       </div>
+      -->
 
       <div class="row-fluid">
-        <div class="span12">
-          <fieldset>
-            <legend>Source</legend>
-            <div id="editor">
-              <!-- ACE editor -->
+        <div class="span6">
+          <legend style="text-align: right;">
+            <div style="float: left;">
+              <% if (model.isNew()) { %>
+                New Widget
+              <% } else { %>
+                Edit Widget
+              <% } %>
             </div>
+
             <input type="button" value="save">
             <% if (!model.isNew()) { %>
               <input type="button" value="delete">
             <% } %>
-          </fieldset>
+          </legend>
+
+          <div class="accordion" id="accordion1">
+            <div class="accordion-group">
+              <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseMetadata">
+                  Metadata
+                </a>
+              </div>
+              <div id="collapseMetadata" class="accordion-body collapse in">
+                <div class="accordion-inner">
+                  <div class="row-fluid">
+                    <div class="span6">
+                      <label>
+                        Name:<br>
+                        <input type="text" name="name" value="<%- model.get('name') %>">
+                      </label>
+                      <label>
+                        Description:<br>
+                        <textarea name="description"><%- model.get('description') %></textarea>
+                      </label>
+                    </div>
+                    <div class="span6">
+                      <!--
+                      <label>
+                        Dimensions:<br>
+                        <input type="number" name="dimensions" value="<%- model.get('dimensions') %>">
+                      </label>
+                      <label>
+                        Depth:<br>
+                        <input type="number" name="depth" value="<%- model.get('depth') %>">
+                      </label>
+                      <label>
+                        <% if (model.get('multiseries')) { %>
+                          <input type="checkbox" name="multiseries" checked="checked"> multiseries
+                        <% } else { %>
+                          <input type="checkbox" name="multiseries"> multiseries
+                        <% } %>
+                      </label>
+                      -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-group">
+              <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseSource">
+                  Source
+                </a>
+              </div>
+              <div id="collapseSource" class="accordion-body collapse">
+                <div class="accordion-inner">
+                  <div id="editor">
+                    <!-- ACE editor -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="span6">
+          <legend>Preview</legend>
+          <div id="widget-preview">
+            <!-- widget preview -->
+          </div>
         </div>
       </div>
     </script>
