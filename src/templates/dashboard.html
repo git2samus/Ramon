@@ -117,20 +117,7 @@
                 <div class="accordion-inner">
                   <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
                   <select name="parentClass">
-                    <% if (currentModel.get('parentClass')) { %>
-                      <option value="">BaseWidget</option>
-                    <% } else { %>
-                      <option value="" selected="selected">BaseWidget</option>
-                    <% } %>
-                    <% models.each(function(model) { %>
-                      <% if (model != currentModel) { %>
-                        <% if (model.get('widgetClass') == currentModel.get('parentClass')) { %>
-                          <option value="<%- model.get('widgetClass') %>" selected="selected"><%- model.get('widgetClass') %></option>
-                        <% } else { %>
-                          <option value="<%- model.get('widgetClass') %>"><%- model.get('widgetClass') %></option>
-                        <% } %>
-                      <% } %>
-                    <% }); %>
+                    <!-- select_widget -->
                   </select>
                   <div id="editor">
                     <!-- ACE editor -->

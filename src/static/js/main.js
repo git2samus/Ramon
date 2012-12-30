@@ -44,6 +44,28 @@ function main() {
     var WidgetDefinitionList = Backbone.Collection.extend({
         model: WidgetDefinition,
         url: 'ws/widget-definition',
+        asTree: function() {
+            // returns collection as nested arrays based on parentClass
+            var collection = this;
+
+            var constructNodes = function(parentClass) {
+                var children = collection.filter(function(model) {
+                    return model.get('parentClass') == parentClass;
+                });
+
+                return _.chain(children)
+                    .sortBy(function(model) {
+                        return model.get('widgetClass');
+                    }).map(function(model) {
+                        return {
+                            model: model,
+                            children: constructNodes(model.get('widgetClass')),
+                        };
+                    }).value();
+            };
+
+            return constructNodes();
+        }
     });
 
     // list of available widgets view
@@ -81,10 +103,40 @@ function main() {
             var model = this.model;
             var collection = this.collection;
 
+            var processNodes = function(nodes, depth) {
+                // transforms nested arrays into flat array with depth
+                flatNodes = [];
+
+                for (var i=0; i<nodes.length; i++) {
+                    var node = nodes[i];
+
+                    flatNodes.push({
+                        model: node.model,
+                        depth: depth,
+                    });
+
+                    if (node.children.length)
+                        flatNodes = flatNodes.concat(processNodes(node.children, depth+1));
+                }
+
+                return flatNodes;
+            };
+
+            // render template
             view.$el.html(view.template({
                 models: collection,
                 currentModel: model
             }));
+            // fill-out select_widget
+            $('select', view.$el).html('<option value="">BaseWidget</option>'+
+                _.map(processNodes(collection.asTree(), 1), function(node) {
+                    var currentModel = node.model;
+                    var widgetClass = currentModel.get('widgetClass');
+                    var depth = node.depth;
+
+                    return '<option value="'+widgetClass+'" '+((widgetClass==model.get('parentClass'))? 'selected' : '')+' style="text-indent: '+depth+'em;">'+widgetClass+'</option>';
+                }).join('')
+            );
 
             var editor = ace.edit('editor');
             var session = editor.getSession();
