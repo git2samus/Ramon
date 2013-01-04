@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os, sqlite3
 from contextlib import closing
+from functools import wraps
 from flask import Flask, render_template, g, request, json
 
 # middleware to add support for X-HTTP-Method-Override headers
@@ -80,9 +81,17 @@ def teardown_request(exception):
     if hasattr(g, 'db'):
         g.db.close()
 
+def json_response(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        result = f(*args, **kwargs)
+        return json.dumps(result), 200, {'content-type': 'application/json'}
+    return wrapper
+
 
 # datasources
 @app.route('/ds/browser-stats', methods=['OPTIONS'])
+@json_response
 def browser_stats():
     """
     RDBMS cols: id, year, month, os, browser, browser_version, region, country, city
@@ -99,11 +108,12 @@ def browser_stats():
          "browser": ["id_browser_name", "id_browser_version"],
         "location": ["id_region", "id_country", "id_city"],
     }
-    return json.dumps(result), 200, {'content-type': 'application/json'}
+    return result
 
 
 # webservices
 @app.route('/ws/widget-definition', methods=['GET', 'POST'])
+@json_response
 def widget_definition():
     if request.method == 'POST':
         #TODO validation
@@ -122,9 +132,10 @@ def widget_definition():
     else:
         result = query_db('SELECT * FROM widget_definition')
 
-    return json.dumps(result), 200, {'content-type': 'application/json'}
+    return result
 
 @app.route('/ws/widget-definition/<int:widget_id>', methods=['GET', 'PUT', 'DELETE'])
+@json_response
 def widget_definition_id(widget_id):
     if request.method == 'PUT':
         #TODO validation
@@ -144,7 +155,7 @@ def widget_definition_id(widget_id):
     else:
         result = query_db('SELECT * FROM widget_definition WHERE id=?', [widget_id], one=True)
 
-    return json.dumps(result), 200, {'content-type': 'application/json'}
+    return result
 
 # homepage
 @app.route('/')
