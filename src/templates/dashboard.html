@@ -89,14 +89,21 @@
               </div>
               <div id="collapseMetadata" class="accordion-body collapse in">
                 <div class="accordion-inner">
-                  <label>
-                    Name:<br>
-                    <input type="text" name="name" value="<%- currentModel.get('name') %>">
-                  </label>
-                  <label>
-                    Description:<br>
-                    <textarea name="description"><%- currentModel.get('description') %></textarea>
-                  </label>
+                  <div class="row-fluid">
+                    <div class="span11">
+                      <label>
+                        Name:<br>
+                        <input type="text" name="name" value="<%- currentModel.get('name') %>" style="width: 100%;">
+                      </label>
+                      <label>
+                        Description:<br>
+                        <textarea name="description" style="width: 100%;"><%- currentModel.get('description') %></textarea>
+                      </label>
+                    </div>
+                    <div class="span1">
+                      <!-- I hate CSS -->
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -109,16 +116,22 @@
               </div>
               <div id="collapseSource" class="accordion-body collapse">
                 <div class="accordion-inner">
-                  <label>
-                    Class:<br>
-                    <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
-                  </label>
-                  <label>
-                    Extends:<br>
-                    <select name="parentClass">
-                      <!-- select_widget -->
-                    </select>
-                  </label>
+                  <div class="row-fluid">
+                    <div class="span6">
+                      <label>
+                        Class:<br>
+                        <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
+                      </label>
+                    </div>
+                    <div class="span6">
+                      <label>
+                        Extends:<br>
+                        <select name="parentClass">
+                          <!-- select_widget -->
+                        </select>
+                      </label>
+                    </div>
+                  </div>
                   <div id="editor">
                     <!-- ACE editor -->
                   </div>
