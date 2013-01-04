@@ -2,6 +2,8 @@
 import os, sqlite3
 from contextlib import closing
 from functools import wraps
+from random import random
+from copy import copy
 from flask import Flask, render_template, g, request, json
 
 # middleware to add support for X-HTTP-Method-Override headers
@@ -90,25 +92,28 @@ def json_response(f):
 
 
 # datasources
-@app.route('/ds/browser-stats', methods=['OPTIONS'])
+@app.route('/ds/test', methods=['GET'])
 @json_response
-def browser_stats():
-    """
-    RDBMS cols: id, year, month, os, browser, browser_version, region, country, city
-    dimensions/drillables:
-        -year, month
-        -os
-        -browser, browser_version
-        -region, country, city
-    """
+def test_datasource():
+    series     = [int(v) for v in request.args.get('series').split(',')]
+    dimensions = int(request.args.get('dimensions'))
+    min_value  = int(request.args.get('min',  '0'))
+    max_value  = int(request.args.get('max', '10'))
 
-    result = {
-            "time": ["year", "month"],
-              "os": ["id_os_name"],
-         "browser": ["id_browser_name", "id_browser_version"],
-        "location": ["id_region", "id_country", "id_city"],
-    }
-    return result
+    def generate_series(series, dimensions):
+        if len(series) > 0:
+            iterations = series.pop(0)
+            return [
+                generate_series(copy(series), dimensions)
+                for _ in range(iterations)
+            ]
+        else:
+            return [
+                (max_value - min_value)*random() + min_value
+                for _ in range(dimensions)
+            ]
+
+    return generate_series(series, dimensions)
 
 
 # webservices
