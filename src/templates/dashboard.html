@@ -89,20 +89,14 @@
               </div>
               <div id="collapseMetadata" class="accordion-body collapse in">
                 <div class="accordion-inner">
-                  <div class="row-fluid">
-                    <div class="span6">
-                      <label>
-                        Name:<br>
-                        <input type="text" name="name" value="<%- currentModel.get('name') %>">
-                      </label>
-                      <label>
-                        Description:<br>
-                        <textarea name="description"><%- currentModel.get('description') %></textarea>
-                      </label>
-                    </div>
-                    <div class="span6">
-                    </div>
-                  </div>
+                  <label>
+                    Name:<br>
+                    <input type="text" name="name" value="<%- currentModel.get('name') %>">
+                  </label>
+                  <label>
+                    Description:<br>
+                    <textarea name="description"><%- currentModel.get('description') %></textarea>
+                  </label>
                 </div>
               </div>
             </div>
@@ -115,10 +109,16 @@
               </div>
               <div id="collapseSource" class="accordion-body collapse">
                 <div class="accordion-inner">
-                  <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
-                  <select name="parentClass">
-                    <!-- select_widget -->
-                  </select>
+                  <label>
+                    Class:<br>
+                    <input type="text" name="widgetClass" value="<%- currentModel.get('widgetClass') %>">
+                  </label>
+                  <label>
+                    Extends:<br>
+                    <select name="parentClass">
+                      <!-- select_widget -->
+                    </select>
+                  </label>
                   <div id="editor">
                     <!-- ACE editor -->
                   </div>
