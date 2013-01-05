@@ -91,8 +91,26 @@ def json_response(f):
     return wrapper
 
 
-# datasources
-@app.route('/ds/test', methods=['GET'])
+def generate_series(series, dimensions, max_value=10, min_value=0):
+    if len(series) > 0:
+        serie = series.pop(0)
+        if serie.isdigit():
+            labels = [n+1 for n in range(int(serie))]
+        else:
+            labels = serie.split('|')
+
+        return [
+            {'label': label, 'data': generate_series(copy(series), dimensions)}
+            for label in labels
+        ]
+    else:
+        return [
+            (max_value-min_value) * random() + min_value
+            for _ in range(dimensions)
+        ]
+
+# test datasource
+@app.route('/ds/test', methods=['GET', 'OPTIONS'])
 @json_response
 def test_datasource():
     series     = request.args.get('series').split(',')
@@ -100,25 +118,12 @@ def test_datasource():
     max_value  = int(request.args.get('maxValue', '10'))
     min_value  = int(request.args.get('minValue',  '0'))
 
-    def generate_series(series, dimensions):
-        if len(series) > 0:
-            serie = series.pop(0)
-            if serie.isdigit():
-                labels = [n+1 for n in range(int(serie))]
-            else:
-                labels = serie.split('|')
+    if request.method == 'OPTIONS':
+        return {
+            'series': len(series), 'dimensions': dimensions,
+        }
 
-            return [
-                {'label': label, 'data': generate_series(copy(series), dimensions)}
-                for label in labels
-            ]
-        else:
-            return [
-                (max_value - min_value)*random() + min_value
-                for _ in range(dimensions)
-            ]
-
-    return generate_series(series, dimensions)
+    return generate_series(series, dimensions, max_value, min_value)
 
 
 # webservices
