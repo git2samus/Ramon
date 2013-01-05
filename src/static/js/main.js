@@ -51,6 +51,8 @@ function main() {
         defaults: {
             'name': 'new widget',
             'description': 'this is a new widget',
+            'series': 1,
+            'dimensions': 1,
             'widgetClass': 'newWidget',
             'parentClass': '',
             'source': [
