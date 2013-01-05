@@ -261,7 +261,10 @@ function main() {
                     el: $('#widget-preview'),
                     model: model
                 });
-                widget_preview.setDatasource('/ds/test?series=3&dimensions=2');
+                var series = [
+                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].join('|')
+                ].join(',')
+                widget_preview.setDatasource('http://127.0.0.1:5000/ds/test?series='+series+'&dimensions=1');
                 widget_preview.render();
             } catch(e) {
                 $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
