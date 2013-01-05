@@ -1,15 +1,3 @@
-function getDatasourceOptions(url, settings) {
-    if (Backbone.emulateHTTP) {
-        settings.type = 'POST';
-        settings.headers = settings.headers || {};
-        settings.headers['X-HTTP-Method-Override'] = 'OPTIONS';
-    } else {
-        settings.type = 'OPTIONS';
-    }
-
-    return $.ajax(url, settings);
-}
-
 function main() {
     // X-HTTP-Method-Override browser compatibility workaround
     Backbone.emulateHTTP = true;
@@ -29,7 +17,23 @@ function main() {
             return this.options._widget.datasource || null;
         },
         setDatasource: function(url) {
-            //TODO compare/validate metadata
+            var settings = {};
+            if (Backbone.emulateHTTP) {
+                settings.type = 'POST';
+                settings.headers = {'X-HTTP-Method-Override': 'OPTIONS'};
+            } else {
+                settings.type = 'OPTIONS';
+            }
+            settings.dataType = 'json';
+            settings.async = false;
+
+            var jqXHR = $.ajax(url, settings);
+            var datasourceOptions = $.parseJSON(jqXHR.responseText);
+
+            if (datasourceOptions.series != this.model.get('series') ||
+                datasourceOptions.dimensions != this.model.get('dimensions'))
+                throw 'datasource options mismatch';
+
             this.options._widget.datasource = url;
         },
         getWidgetData: function(settings) {
@@ -255,6 +259,7 @@ function main() {
                 var DynamicView = BaseWidget.extend(options);
                 var widget_preview = new DynamicView({
                     el: $('#widget-preview'),
+                    model: model
                 });
                 widget_preview.setDatasource('/ds/test?series=3&dimensions=2');
                 widget_preview.render();
