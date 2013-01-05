@@ -53,6 +53,8 @@ def query_db(query, args=(), one=False):
         'id':           'id',
         'name':         'name',
         'description':  'description',
+        'series':       'series',
+        'dimensions':   'dimensions',
         'widget_class': 'widgetClass',
         'parent_class': 'parentClass',
         'source':       'source',
@@ -137,9 +139,9 @@ def widget_definition():
             request_payload['parentClass'] = None
 
         query_db('''INSERT INTO widget_definition(
-                name, description, widget_class, parent_class, source
-            ) VALUES(?, ?, ?, ?, ?)''', [
-                request_payload[key] for key in ('name', 'description', 'widgetClass', 'parentClass', 'source')
+                name, description, series, dimensions, widget_class, parent_class, source
+            ) VALUES(?, ?, ?, ?, ?, ?, ?)''', [
+                request_payload[key] for key in ('name', 'description', 'series', 'dimensions', 'widgetClass', 'parentClass', 'source')
             ]
         )
 
@@ -158,15 +160,15 @@ def widget_definition_id(widget_id):
         if not request_payload['parentClass']:
             request_payload['parentClass'] = None
 
-        query_db('UPDATE widget_definition SET name=?, description=?, widget_class=?, parent_class=?, source=? WHERE id=?',
-                 [request_payload[key] for key in ('name', 'description', 'widgetClass', 'parentClass', 'source')] + [widget_id])
+        query_db('UPDATE widget_definition SET name=?, description=?, series=?, dimensions=?, widget_class=?, parent_class=?, source=? WHERE id=?',
+                 [request_payload[key] for key in ('name', 'description', 'series', 'dimensions', 'widgetClass', 'parentClass', 'source')] + [widget_id])
 
         result = query_db('SELECT * FROM widget_definition WHERE id=?', [widget_id], one=True)
     elif request.method == 'DELETE':
         #TODO validation
         query_db('DELETE FROM widget_definition WHERE id=?', [widget_id])
 
-        result = {}
+        result = None
     else:
         result = query_db('SELECT * FROM widget_definition WHERE id=?', [widget_id], one=True)
 
