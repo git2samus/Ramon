@@ -95,17 +95,22 @@ def json_response(f):
 @app.route('/ds/test', methods=['GET'])
 @json_response
 def test_datasource():
-    series     = [int(v) for v in request.args.get('series').split(',')]
+    series     = request.args.get('series').split(',')
     dimensions = int(request.args.get('dimensions'))
-    min_value  = int(request.args.get('min',  '0'))
-    max_value  = int(request.args.get('max', '10'))
+    max_value  = int(request.args.get('maxValue', '10'))
+    min_value  = int(request.args.get('minValue',  '0'))
 
     def generate_series(series, dimensions):
         if len(series) > 0:
-            iterations = series.pop(0)
+            serie = series.pop(0)
+            if serie.isdigit():
+                labels = [n+1 for n in range(int(serie))]
+            else:
+                labels = serie.split('|')
+
             return [
-                generate_series(copy(series), dimensions)
-                for _ in range(iterations)
+                {'label': label, 'data': generate_series(copy(series), dimensions)}
+                for label in labels
             ]
         else:
             return [
