@@ -14,6 +14,36 @@ function main() {
     // X-HTTP-Method-Override browser compatibility workaround
     Backbone.emulateHTTP = true;
 
+    // base class for all widgets
+    var BaseWidget = Backbone.View.extend({
+        options: {
+            _widget: {}
+        },
+        getWidgetOptions: function() {
+            return this.options._widget.options || {};
+        },
+        setWidgetOptions: function(widgetOptions) {
+            this.options._widget.options = widgetOptions;
+        },
+        getDatasource: function() {
+            return this.options._widget.datasource || null;
+        },
+        setDatasource: function(url) {
+            //TODO compare/validate metadata
+            this.options._widget.datasource = url;
+        },
+        getWidgetData: function(settings) {
+            var datasource = this.getDatasource();
+            if (!datasource)
+                throw 'datasource not configured';
+
+            settings = settings || {};
+            settings.dataType = 'json';
+
+            return $.ajax(datasource, settings);
+        },
+    });
+
     // widget definition persistence
     var WidgetDefinition = Backbone.Model.extend({
         // idAttribute does not play well with isNew()
@@ -25,9 +55,15 @@ function main() {
             'parentClass': '',
             'source': [
                 '{',
-                '    loadConfig: function(cfg) { },',
-                '    loadData: function(data) { },',
+                '    getData: function(settings) {',
+                '        /* override this method to adapt data to your format */',
+                '        var widgetOptions = this.getWidgetOptions();',
+                '        return newWidget.prototype.getData.apply(this, arguments);',
+                '    },',
                 '    render: function() {',
+                '        /* draw widget */',
+                '        var widgetOptions = this.getWidgetOptions();',
+                '        var widgetData    = this.getWidgetData();',
                 '        this.$el.html("new widget");',
                 '        return this;',
                 '    },',
@@ -214,12 +250,11 @@ function main() {
 
             try {
                 var options = (new Function('return '+source+';'))();
-                var DynamicView = Backbone.View.extend(options);
+                var DynamicView = BaseWidget.extend(options);
                 var widget_preview = new DynamicView({
                     el: $('#widget-preview'),
                 });
-                widget_preview.loadConfig(cfg);
-                widget_preview.loadData(data);
+                widget_preview.setDatasource('/ds/test?series=3&dimensions=2');
                 widget_preview.render();
             } catch(e) {
                 $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
