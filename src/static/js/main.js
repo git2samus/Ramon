@@ -201,12 +201,13 @@ function main() {
 
             var $target = $(e.target);
             if ($target.attr('name')) {
-                console.log($target.attr('name'), $target.val());
                 if ($target.attr('type') == 'checkbox')
                     model.set($target.attr('name'), $target.attr('checked') == 'checked');
                 else
                     model.set($target.attr('name'), $target.val());
             }
+
+            this.updatePreview();
         },
 
         updateDB: function(e) {
@@ -257,10 +258,7 @@ function main() {
                     el: $('#widget-preview'),
                     model: model
                 });
-                var series = [
-                    ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].join('|')
-                ].join(',')
-                widget_preview.setDatasource('http://127.0.0.1:5000/ds/test?series='+series+'&dimensions=1');
+                widget_preview.setDatasource('http://127.0.0.1:5000/ds/test?series='+model.get('series')+'&dimensions='+model.get('dimensions'));
             } catch(e) {
                 $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
             }
