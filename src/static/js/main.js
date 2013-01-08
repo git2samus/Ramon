@@ -4,9 +4,14 @@ function main() {
 
     // base class for all widgets
     var BaseWidget = Backbone.View.extend({
+        initialize: function(options) {
+            Backbone.View.prototype.initialize.apply(this, arguments);
+            this.setWidgetOptions(this.defaultWidgetOptions);
+        },
         options: {
             _widget: {}
         },
+        defaultWidgetOptions: {},
         getWidgetOptions: function() {
             return this.options._widget.options || {};
         },
@@ -57,24 +62,9 @@ function main() {
             'description': 'this is a new widget',
             'series': 1,
             'dimensions': 1,
-            'widgetClass': 'newWidget',
+            'widgetClass': 'NewWidget',
             'parentClass': '',
-            'source': [
-                '{',
-                '    getData: function(settings) {',
-                '        /* override this method to adapt data to your format */',
-                '        var widgetOptions = this.getWidgetOptions();',
-                '        return newWidget.prototype.getData.apply(this, arguments);',
-                '    },',
-                '    render: function() {',
-                '        /* draw widget */',
-                '        var widgetOptions = this.getWidgetOptions();',
-                '        var widgetData    = this.getWidgetData();',
-                '        this.$el.html("new widget");',
-                '        return this;',
-                '    },',
-                '}',
-            ].join('\n'),
+            'source': '',
         },
         url: function() {
             if (this.isNew())
@@ -250,14 +240,12 @@ function main() {
             var model = this.model;
             var collection = this.collection;
 
-            var source = model.get('source');
-            var cfg = {};
-            var data = {};
-
             try {
-                var options = (new Function('return '+source+';'))();
-                var DynamicView = BaseWidget.extend(options);
-                var widget_preview = new DynamicView({
+                var source = model.get('source');
+                eval('var options = '+source+';');
+
+                var NewWidget = BaseWidget.extend(options);
+                var widget_preview = new NewWidget({
                     el: $('#widget-preview'),
                     model: model
                 });
@@ -292,10 +280,34 @@ function main() {
         },
 
         loadWidget: function(widgetId) {
-            if (widgetId)
+            if (widgetId) {
                 var model = widget_collection.get(widgetId); //TODO validation
-            else
+            } else {
                 var model = new WidgetDefinition();
+                var source = [
+                    '{',
+                    '    initialize: function(options) {',
+                    '        BaseWidget.prototype.initialize.apply(this, arguments);',
+                    '    },',
+                    '    defaultWidgetOptions: {',
+                    '       /* customize */',
+                    '    },',
+                    '    getData: function(settings) {',
+                    '        /* override this method to adapt data to your format */',
+                    '        var widgetOptions = this.getWidgetOptions();',
+                    '        return NewWidget.prototype.getData.apply(this, arguments);',
+                    '    },',
+                    '    render: function() {',
+                    '        /* draw widget */',
+                    '        var widgetOptions = this.getWidgetOptions();',
+                    '        var widgetData    = this.getWidgetData();',
+                    '        this.$el.html("new widget");',
+                    '        return this;',
+                    '    },',
+                    '}',
+                ].join('\n');
+                model.set('source', source);
+            }
 
             widget_library.model = model;
             widget_library.render();
