@@ -242,7 +242,9 @@ function main() {
 
             try {
                 var source = model.get('source');
-                eval('var options = '+source+';');
+                var context = model.toJSON();
+                    context.parentClass = context.parentClass || 'BaseWidget';
+                eval('var options = '+_.template(source, context, {variable: 'model'})+';');
 
                 var NewWidget = BaseWidget.extend(options);
                 var widget_preview = new NewWidget({
@@ -287,7 +289,7 @@ function main() {
                 var source = [
                     '{',
                     '    initialize: function(options) {',
-                    '        BaseWidget.prototype.initialize.apply(this, arguments);',
+                    '        <%= model.parentClass %>.prototype.initialize.apply(this, arguments);',
                     '    },',
                     '    defaultWidgetOptions: {',
                     '       /* customize */',
@@ -295,7 +297,7 @@ function main() {
                     '    getData: function(settings) {',
                     '        /* override this method to adapt data to your format */',
                     '        var widgetOptions = this.getWidgetOptions();',
-                    '        return NewWidget.prototype.getData.apply(this, arguments);',
+                    '        return <%= model.widgetClass %>.prototype.getData.apply(this, arguments);',
                     '    },',
                     '    render: function() {',
                     '        /* draw widget */',
