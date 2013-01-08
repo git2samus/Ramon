@@ -22,6 +22,10 @@ function main() {
             return this.options._widget.datasource || null;
         },
         setDatasource: function(url) {
+            var view = this;
+            var model = this.model;
+            var collection = this.collection;
+
             var settings = {};
             if (Backbone.emulateHTTP) {
                 settings.type = 'POST';
@@ -30,16 +34,18 @@ function main() {
                 settings.type = 'OPTIONS';
             }
             settings.dataType = 'json';
-            settings.async = false;
 
-            var jqXHR = $.ajax(url, settings);
-            var datasourceOptions = $.parseJSON(jqXHR.responseText);
+            settings['success'] = function(datasourceOptions) {
+                if (datasourceOptions.series != model.get('series')
+                        || datasourceOptions.dimensions != model.get('dimensions')) {
+                    throw 'datasource options mismatch';
+                }
 
-            if (datasourceOptions.series != this.model.get('series') ||
-                datasourceOptions.dimensions != this.model.get('dimensions'))
-                throw 'datasource options mismatch';
+                view.options._widget.datasource = url;
+                view.render();
+            };
 
-            this.options._widget.datasource = url;
+            return $.ajax(url, settings);
         },
         getWidgetData: function(settings) {
             var datasource = this.getDatasource();
@@ -255,7 +261,6 @@ function main() {
                     ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].join('|')
                 ].join(',')
                 widget_preview.setDatasource('http://127.0.0.1:5000/ds/test?series='+series+'&dimensions=1');
-                widget_preview.render();
             } catch(e) {
                 $('#widget-preview').html('<pre>'+_.escape(e)+'</pre>');
             }
